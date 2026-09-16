@@ -1,3 +1,690 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Linux Hub — Learn. Build. Explore.</title>
+
+    <style>
+        :root {
+            --bg: #080a0b;
+            --panel: #101416;
+            --panel-light: #151a1d;
+            --border: #252d30;
+            --text: #f1f5f4;
+            --muted: #879294;
+            --red: #ff4050;
+            --green: #54e39a;
+            --cyan: #6ed7e8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -2;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 42px 42px;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            top: -180px;
+            right: -130px;
+            border-radius: 50%;
+            background: rgba(255, 40, 60, 0.10);
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            width: min(1160px, calc(100% - 40px));
+            margin: 0 auto;
+        }
+
+        /* NAVIGATION */
+
+        nav {
+            height: 82px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .logo-mark {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(84,227,154,0.35);
+            border-radius: 9px;
+            color: var(--green);
+            font-family: monospace;
+            font-size: 17px;
+            background: rgba(84,227,154,0.06);
+        }
+
+        .logo span {
+            color: var(--green);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .nav-links a {
+            transition: color 0.25s;
+        }
+
+        .nav-links a:hover {
+            color: var(--green);
+        }
+
+        .nav-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(84,227,154,0.8);
+        }
+
+        /* HERO */
+
+        .hero {
+            min-height: 650px;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            align-items: center;
+            gap: 70px;
+            padding: 90px 0;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--green);
+            font-family: monospace;
+          font-size: 12px;
+            letter-spacing: 1.5px;
+            border: 1px solid rgba(84,227,154,0.25);
+            background: rgba(84,227,154,0.05);
+            padding: 9px 13px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+        }
+
+        .eyebrow::before {
+            content: ">";
+            color: var(--red);
+        }
+
+        .hero h1 {
+            font-size: clamp(44px, 6vw, 76px);
+            line-height: 1.04;
+            letter-spacing: -3px;
+            margin-bottom: 25px;
+        }
+
+        .hero h1 .accent {
+            color: var(--red);
+        }
+
+        .hero h1 .green {
+            color: var(--green);
+        }
+
+        .hero-description {
+            max-width: 520px;
+            color: var(--muted);
+            line-height: 1.8;
+            font-size: 16px;
+            margin-bottom: 34px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 14px 20px;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: 0.25s;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: white;
+            box-shadow: 0 8px 30px rgba(255,64,80,0.12);
+        }
+
+        .btn-primary:hover {
+            background: #ff5967;
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            border: 1px solid var(--border);
+            color: #b6c0c1;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .btn-secondary:hover {
+            border-color: #465256;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* TERMINAL */
+
+        .terminal {
+            background: #0c1011;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+            animation: floating 5s ease-in-out infinite;
+        }
+
+        .terminal-header {
+            height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 17px;
+            border-bottom: 1px solid var(--border);
+            background: #111719;
+        }
+
+        .window-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #303a3d;
+        }
+
+        .window-dot:first-child {
+            background: var(--red);
+        }
+
+        .terminal-title {
+            margin-left: auto;
+            color: #526063;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        .terminal-body {
+            padding: 25px;
+            min-height: 310px;
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 2;
+        }
+
+        .line {
+            color: #68777a;
+        }
+
+        .prompt {
+            color: var(--red);
+        }
+
+        .command {
+            color: #d8e2e0;
+        }
+
+        .green-text {
+            color: var(--green);
+        }
+
+        .cyan-text {
+            color: var(--cyan);
+        }
+
+        .terminal-space {
+            height: 12px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 7px;
+            height: 15px;
+            background: var(--green);
+            vertical-align: middle;
+            animation: blink 1s infinite;
+        }
+
+        /* SECTIONS */
+
+        .section {
+            padding: 90px 0;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-family: monospace;
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+        }
+
+        .section-heading h2 {
+            font-size: 35px;
+            letter-spacing: -1.5px;
+        }
+
+        .section-heading p {
+            max-width: 380px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* CARDS */
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .card {
+            position: relative;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            min-height: 230px;
+            transition: 0.3s;
+            overflow: hidden;
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            right: -50px;
+            bottom: -50px;
+            border-radius: 50%;
+            background: rgba(84,227,154,0.05);
+            filter: blur(20px);
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-7px);
+            border-color: rgba(84,227,154,0.35);
+            background: var(--panel-light);
+        }
+
+        .card:hover::after {
+            transform: scale(2);
+        }
+
+        .card-icon {
+            width: 45px;
+            height: 45px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: #18201f;
+            border: 1px solid #293b35;
+            font-size: 22px;
+            margin-bottom: 25px;
+        }
+
+        .card-number {
+            color: #4d5b5d;
+            font-family: monospace;
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+
+        .card h3 {
+            font-size: 21px;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .card-link {
+            display: inline-block;
+            color: var(--green);
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 22px;
+        }
+
+        /* ROADMAP */
+
+        .roadmap {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .roadmap-item {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .roadmap-number {
+            color: var(--red);
+            font-family: monospace;
+            font-size: 12px;
+            margin-bottom: 25px;
+        }
+
+        .roadmap-item h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .roadmap-item p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* ABOUT */
+
+        .about-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 35px;
+        }
+
+        .about-box h3 {
+            font-size: 25px;
+            margin-bottom: 15px;
+        }
+
+        .about-box p {
+            color: var(--muted);
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        .facts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .fact {
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 17px;
+            background: #0d1112;
+        }
+
+        .fact small {
+            display: block;
+            color: #637073;
+            font-family: monospace;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        .fact strong {
+            font-size: 14px;
+        }
+
+        /* FOOTER */
+      footer {
+            border-top: 1px solid var(--border);
+            padding: 30px 0;
+            color: #566164;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        /* ANIMATIONS */
+
+        @keyframes floating {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        @keyframes blink {
+            0%, 45% {
+                opacity: 1;
+            }
+            46%, 100% {
+                opacity: 0;
+            }
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 850px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 45px;
+                padding: 65px 0;
+            }
+
+            .terminal {
+                max-width: 600px;
+            }
+
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .roadmap {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .about-box {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-status {
+                display: none;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .container {
+                width: min(100% - 30px, 1160px);
+            }
+
+            nav {
+                height: 70px;
+            }
+
+            .nav-links {
+                gap: 13px;
+                font-size: 12px;
+            }
+
+            .logo {
+                font-size: 16px;
+            }
+
+            .logo-mark {
+                width: 29px;
+                height: 29px;
+                font-size: 14px;
+            }
+
+            .hero {
+                padding: 55px 0;
+            }
+
+            .hero h1 {
+                font-size: 46px;
+                letter-spacing: -2px;
+            }
+
+            .hero-description {
+                font-size: 14px;
+            }
+
+            .section {
+                padding: 60px 0;
+            }
+
+            .section-heading {
+                display: block;
+            }
+
+            .section-heading h2 {
+                font-size: 30px;
+                margin-bottom: 15px;
+            }
+
+            .cards,
+            .roadmap {
+                grid-template-columns: 1fr;
+            }
+
+            .about-box {
+                padding: 23px;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <nav>
+            <a href="#home" class="logo">
+                <div class="logo-mark">⌘</div>
+                LINUX<span>HUB</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="#home">Главная</a>
+                <a href="#distros">Linux</a>
+                <a href="#learn">Обучение</a>
+                <a href="#about">О проекте</a>
+            </div>
+
+            <div class="nav-status">
+                <span class="status-dot"></span>
+                SYSTEM ONLINE
+            </div>
+        </nav>
+
+        <main>
+
+            <!-- HERO -->
+
+            <section class="hero" id="home">
+
+                <div>
+                    <div class="eyebrow">WELCOME TO LINUX HUB</div>
+
+                    <h1>
+                        Learn Linux.<br>
+                        Build <span class="accent">skills</span>.<br>
+                        Explore <span class="green">more.</span>
+                    </h1>
+
+                    <p class="hero-description">
+                        Linux Hub — учебное пространство для тех,
+                        кто хочет разобраться в Linux, терминале
+                        и программировании шаг за шагом.
+                    </p>
 <div class="hero-buttons">
                         <a href="#distros" class="btn btn-primary">
                             Исследовать Linux →
@@ -106,8 +793,7 @@
                         </p>
                         <a href="#learn" class="card-link">Explore →</a>
                     </div>
-                  
-                    <div class="card">
+                <div class="card">
                         <div class="card-icon">🛡️</div>
                         <div class="card-number">03 / SECURITY</div>
-                        <h3>K
+                        <h3>K      
